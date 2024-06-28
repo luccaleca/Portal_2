@@ -1,0 +1,43 @@
+const getTabelaVendas = (db, callback) => {
+    const query = `SELECT DISTINCT 
+    k.NOME AS VENDEDOR,
+    SUM(a.LCTVALOR) AS VENDAS,
+    SUM(a.LCTVALOR) / COUNT(e.PEDSEQUENCIAL) AS TM,
+    m.MTVVALORMETA AS META
+FROM 
+    TB_LCT_LANCAMENTOS a
+    INNER JOIN TB_LTV_LANCAMENTOVENDA b ON b.LCTID = a.LCTID 
+    INNER JOIN TB_VEN_VENDA c ON c.VENID = b.VENID 
+    INNER JOIN TB_VPE_VENDAPEDIDOS d ON d.VENID_VENDA = c.VENID 
+    INNER JOIN TB_PED_PEDIDO e ON e.PEDID = d.PEDID_PEDIDO 
+    INNER JOIN TB_CLI_CLIENTE f ON f.CLIID = c.CLIID_PAGADOR 
+    INNER JOIN TB_PES_PESSOA g ON g.PESID = f.PESID 
+    INNER JOIN TB_USU_USUARIO h ON h.USUID = a.USUID
+    INNER JOIN TB_VND_VENDEDOR i ON i.VNDID = e.VNDID_PRIMEIRO  
+    INNER JOIN TB_NIVEL_ACESSO k ON k.PESID = i.PESID 
+    INNER JOIN TB_DMV_DETALHEMETAVEND l ON l.VNDID = i.VNDID 
+    INNER JOIN TB_MTV_METASVENDEDOR m ON m.MTVID = l.MTVID
+    INNER JOIN TB_TVN_TIPOVENDA o ON o.TVNID = e.TVNID 
+WHERE 
+    e.FILID_FILIAL = '5'
+    AND o.TVNDESCRICAO = 'VIDEO CHAMADA'
+    AND e.MCVID IS NULL
+GROUP BY 
+    k.NOME, 
+    m.MTVVALORMETA 
+ORDER BY 
+    VENDAS DESC;
+`;
+db.query(query, [dataInicio, dataFim], (err, result) => {
+    if (err) {
+        callback(err);
+} else {
+    callback(null, result);
+     }
+});
+};
+
+module.exports = {
+    getTabelaVendas,
+};
+
