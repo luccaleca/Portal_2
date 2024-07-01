@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 
+const authRoutes = require("./routes/auth.routes.js");
+
 //carrega as variaveis de ambiente do arquivo dotenv
 dotenv.config();
 
@@ -28,9 +30,11 @@ connectDB((db) => {
     
 
 app.get('/', (req, res) => {
-    res.send('Bem vindo ao Dashboard');
+    // root route http://localhost:5000/
+    res.send('Bem vindo ao Portal 2');
 });
 
+app.use("/api/auth", authRoutes);
 
 
     app.listen(PORT, '0.0.0.0', () => {
