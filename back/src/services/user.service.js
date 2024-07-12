@@ -1,6 +1,7 @@
 //Importa o modelo User do arquivo user.model
 const User = require('../models/user.model');
 
+//função para registrar um novo usuario
 const registerUser = (userData, callback) => {
     // Aqui pode adicionar validações ou lógicas adicionais antes de chamar o método do modelo
 
@@ -15,7 +16,6 @@ const registerUser = (userData, callback) => {
     
     // Chama o método create do modelo user para criar um novo usuario com os dados fornecidos
     // Passa o userData e o callback para lidar com o resultado da operação de criação
-    console.log('Registrando usuário com dados:', userData);
     User.create(userData, callback);
 };
 

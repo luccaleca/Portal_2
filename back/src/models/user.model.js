@@ -10,10 +10,9 @@ const User = {
 
     //conecta ao banco de dados
     connectDB((db) => {
-        console.log('Conectado ao banco de dados para criar um usuario');
         //Define a consulta sql para inserir um novo usuário na tabela tb_usuarios_portal2
-        const insertQuery = ` INSERT INTO TB_USUARIOS_PORTAL2 (nome, email, senha)
-        VALUES (?, ?, ?)
+        const insertQuery = ` INSERT INTO TB_USUARIOS_PORTAL2 (id,nome, email, senha)
+        VALUES (GEN_ID(gen_tb_usuarios_portal2_id, 1),?, ?, ?)
         `;
         //executa a consulta sql
         db.query(insertQuery, [nome, email, senha], (insertErr) => {
@@ -29,6 +28,19 @@ const User = {
                 return callback(null, {nome, email, senha});
             }
         });
+        });
+    },
+    //função para encontrar um usuario pelo email
+    findByEmail: (email, callback) => {
+        connectDB((db) => {
+            const query = 'SELECT * FROM TB_USUARIOS_PORTAL2 WHERE email = ?';
+            //executa a consulta SQL para encontrar o resultado
+            db.query(query, [email], (err, result) => {
+                db.detach();
+                if (err) return callback(err);
+                if(result.length === 0) return callback(null, null);    //nennhum usuario encontrado        
+                return callback(null, result[0]);
+            });  
         });
     }
 };
