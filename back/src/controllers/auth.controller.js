@@ -1,6 +1,7 @@
 const { registerUser } = require('../services/user.service')
 const bcript = require('bcrypt')
 const User = require('../models/user.model')
+const generateTokenAndSetCookie = require('../utils/generateJWT');
 
 //cria uma função assincrona para registrar um novo usuario
 const signup = async (req, res) => {
@@ -36,6 +37,9 @@ const signup = async (req, res) => {
             return res.status(400).json({ message: err.message});
         }
 
+        //gerar um token JWT e define o cookie
+        generateTokenAndSetCookie(newUser.id, res);
+
         //retorna o usuario registrado em caso de sucesso
         res.status(201).json(newUser);
      });
@@ -48,7 +52,32 @@ const signup = async (req, res) => {
 };
 
 const login = (req, res) => {
-    res.send('Pagina de login');
+    const {email, senha } = req.body;
+
+    try {
+        User.findByEmail(email, async (err, user) => {
+            if (err) {
+                console.error('Erro ao verificar usuário', err.message);
+                return res.status(500).json({ message: 'Erro ao verificar usuário'});
+            }
+
+            if (!user) {
+                return res.status(400).json({ error: 'Credenciais inválidas'});
+            }
+
+            const isMatch = await bcrypt.compare(senha, user.senha);
+            if (!isMatch) {
+                return res.status(400).json({ error: 'Credenciais inválidas'});
+            }
+
+            generateTokenAndSetCookie(user.id, res);
+
+            res.status(200).json({ user });
+        });
+    } catch (err) {
+        console.error('Erro no login do usuario:', err.message);
+        res.status(500).json({ message: 'Erro no login do usuário'});
+    }
 };
 
 
