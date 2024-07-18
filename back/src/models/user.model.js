@@ -10,6 +10,9 @@ const User = {
 
     //conecta ao banco de dados
     connectDB((db) => {
+        if (!db) {
+            return callback(new Error('Falha ao conectar ao banco de dados'));
+        }
         //Define a consulta sql para inserir um novo usuário na tabela tb_usuarios_portal2
         const insertQuery = ` INSERT INTO TB_USUARIOS_PORTAL2 (id,nome, email, senha)
         VALUES (GEN_ID(gen_tb_usuarios_portal2_id, 1),?, ?, ?)
@@ -25,25 +28,37 @@ const User = {
             } else {
                 //Se a inserção for bem-sucedida, chama a função callback com null (sem erro) e os dados do usuario
                 console.log('Usuario registrado com sucesso');
-                return callback(null, {nome, email, senha});
+                return callback(null, {id:lastInsertId, nome, email, senha});
             }
         });
         });
     },
     //função para encontrar um usuario pelo email
     findByEmail: (email, callback) => {
+        if (typeof callback !== 'function') {
+            throw new TypeError ('callback is not a function');
+        }
         connectDB((db) => {
-            const query = 'SELECT * FROM TB_USUARIOS_PORTAL2 WHERE email = ?';
+            if (!db) {
+                return callback(new Error('Falha ao conectar ao banco de dados'), null);
+            }
+
+
+            const selectQuery = 'SELECT * FROM TB_USUARIOS_PORTAL2 WHERE email = ?';
             //executa a consulta SQL para encontrar o resultado
-            db.query(query, [email], (err, result) => {
+            db.query(selectQuery, [email], (err, result) => {
                 db.detach();
-                if (err) return callback(err);
-                if(result.length === 0) return callback(null, null);    //nennhum usuario encontrado        
-                return callback(null, result[0]);
+                if (err){ 
+                return callback(err, null);
+            } else {
+                return callback(null, results.length > 0 ? results[0] : null);
+            }
             });  
         });
     }
 };
+
+   
 
 //exportar esse objeto User para que possa ser utilizado em outros módulos
 module.exports = User;

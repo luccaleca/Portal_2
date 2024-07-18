@@ -1,5 +1,5 @@
 const { registerUser } = require('../services/user.service')
-const bcript = require('bcrypt')
+const bcrypt = require('bcrypt')
 const User = require('../models/user.model')
 const generateTokenAndSetCookie = require('../utils/generateJWT');
 
@@ -24,8 +24,8 @@ const signup = async (req, res) => {
      }
 
      //gera um salt e hasheia a senha para criptografia
-     const salt = await bcript.genSalt(10);
-     const senhaHash = await bcript.hash(senha, salt);
+     const salt = await bcrypt.genSalt(10);
+     const senhaHash = await bcrypt.hash(senha, salt);
 
      //atualiza os dados do usuario com a senha hasheada
      const newUserData = { nome, email, senha: senhaHash };
@@ -51,37 +51,61 @@ const signup = async (req, res) => {
     }
 };
 
-const login = (req, res) => {
+//cria uma função assincrona para logar no usuario ja criado
+const login = async (req, res) => {
     const {email, senha } = req.body;
 
     try {
-        User.findByEmail(email, async (err, user) => {
-            if (err) {
-                console.error('Erro ao verificar usuário', err.message);
-                return res.status(500).json({ message: 'Erro ao verificar usuário'});
+        // Procura um usuario com o email fornecido
+         User.findByEmail( email, async (err, user) => {
+            if(err) {
+                console.log('Erro ao procurar usuário:', err.message);
+                return res.status(500).json({ error: 'Erro interno no servidor'});
             }
 
             if (!user) {
-                return res.status(400).json({ error: 'Credenciais inválidas'});
+                return res.status(400).json({ error: 'Email ou senha inválido' });
             }
 
-            const isMatch = await bcrypt.compare(senha, user.senha);
-            if (!isMatch) {
-                return res.status(400).json({ error: 'Credenciais inválidas'});
+            //Verificar se a senha do usuario esta disponível
+            if (!user.senha) {
+                console.log('Senha do usuario não encontrada');
+                return res.status(500).json({ error: 'Erro interno no servidor'});
             }
 
-            generateTokenAndSetCookie(user.id, res);
 
-            res.status(200).json({ user });
+        const isPasswordCorrect = await bcrypt.compare(senha, user.password);
+
+        if(!isPasswordCorrect) {
+            return res.status(400).json({ error: "Email ou senha inválido"})
+        }
+        //Gera um token e define um cookie na resposta
+        generateTokenAndSetCookie(user._id, res);
+
+        //retorna uma resposta de sucesso com o nome e email do usuario
+        res.status(200).json({
+            nome: user.nome,
+            email: user.email
         });
-    } catch (err) {
-        console.error('Erro no login do usuario:', err.message);
-        res.status(500).json({ message: 'Erro no login do usuário'});
+    });
+        
+
+    } catch (error) {
+        console.log("Error in login controller", error.message);
+        res.status(500).json({ error: "Internal Server Error"})
     }
+
+   
 };
 
 
 const logout = (req, res) => {
+    // Limpa o cookie JWT
+    res.cookie("jwt", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: "strict"
+    });
     res.send('Página de Logout');
 };
 
