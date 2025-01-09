@@ -1,0 +1,51 @@
+body {
+    font-family: Arial,sans-serif;
+    margin: 10px;
+    padding: 10px;
+}
+
+/* Este é um comentário de bloco que explica que o seguinte CSS estiliza a barra lateral */
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    height: 100vh;
+    padding: 15px;
+    color: white;
+}
+
+/* Comentário: Estilo para os links dentro da barra lateral */
+.sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar .container-perfil {
+    display:flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: flex-start;    /* alinha os itens no topo do container */
+    height: 160px;          /*  Altura do container */
+    background-color: blue; 
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.sidebar .foto-perfil {
+    width: 140px;            /* Tamanho da imagem */
+    height: 120px;           /* Mantenha altura para ser circular */
+    border-radius: 50%;     /* Torna a imagem redonda */
+    background-color: white;
+    
+}
+
+/* Adiciona um efeito hover aos links na barra lateral */
+.sidebar a:hover {
+    background-color: #575757;
+}
+
+/* O conteúdo principal irá crescer para ocupar o espaço restante (tirando a parte lateral */
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
