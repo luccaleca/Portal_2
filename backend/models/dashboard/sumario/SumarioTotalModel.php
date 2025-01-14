@@ -1,16 +1,17 @@
 <?php
-//models/DashboardModel.php
+// models/DashboardModel.php
 
-require_once(__DIR__ . '/../config/database.php');
-
+require_once(__DIR__ . '/../../../config/database.php');
 
 class SumarioTotalModel {
     public static function getResumoVendasTotal($dataInicio, $dataFim) {
+        
+        // Conectando ao banco
         $conn = conectarBanco();
 
-
-        $querySumarioTotal="
-        SELECT 
+        // Definindo a query SQL
+        $querySumarioTotal = "
+            SELECT 
                 SUM(l.LCTVALOR) AS VENDAS_TOTAIS,
                 COUNT(e.PEDSEQUENCIAL) AS NUM_VENDAS_TOTAIS,
                 SUM(l.LCTVALOR) / COUNT(e.PEDSEQUENCIAL) AS TICKET_MEDIO_TOTAL
@@ -23,23 +24,19 @@ class SumarioTotalModel {
             INNER JOIN TB_VEN_VENDA g ON g.VENID = f.VENID_VENDA
             INNER JOIN TB_LTV_LANCAMENTOVENDA h ON h.VENID = g.VENID
             INNER JOIN TB_LCT_LANCAMENTOS l ON l.LCTID = h.LCTID
-            WHERE l.LCTDATALANCAMENTO >=  :dataInicio
+            WHERE l.LCTDATALANCAMENTO >= :dataInicio
             AND l.LCTDATALANCAMENTO <= :dataFim
             AND e.FILID_FILIAL = '5'
             AND e.MCVID IS NULL;
-            ";
+        ";
 
-            $stmt = $conn->prepare($querySumarioTotal);
-
-            //atribuir os valores das datas
-            $stmt->bindParam(':dataInicio', $dataInicio); //bindParam é um metodo do PDO para tratar parametros no comando SQL
-            $stmt->bindParam(':dataFim', $dataFim);
-
-            //executa a consulta
-            $stmt->execute();
-
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+        // Preparando a consulta
+        $stmt = $conn->prepare($querySumarioTotal);
+        $stmt->bindParam(':dataInicio', $dataInicio); 
+        $stmt->bindParam(':dataFim', $dataFim);
+        
+        // Executar a consulta e retornar o resultado
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 }
-

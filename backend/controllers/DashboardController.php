@@ -1,8 +1,9 @@
 <?php
 
-require_once(__DIR__ . '/models/dashboard/sumario/SumarioTotalModel.php'); 
-require_once(__DIR__ . '/models/dashboard/sumario/SumarioVideoChamadaModel.php');
-require_once(__DIR__ . '/models/dashboard/sumario/SumarioWhatsAppModel.php');
+
+require_once(__DIR__ . '/../models/dashboard/sumario/SumarioTotalModel.php'); 
+require_once('C:/xampp/htdocs/lucca/portal_2/backend/models/dashboard/sumario/SumarioVideoChamadaModel.php');
+require_once(__DIR__ . '/../models/dashboard/sumario/SumarioWhatsAppModel.php');
 
 class DashboardController {
 
@@ -20,7 +21,12 @@ class DashboardController {
         //entregamos os valores para os parametros do metodo aplicarFiltroData
         $resultado = $this->aplicarFiltroData($dataInicio, $dataFim);
 
-        echo $resultado;
+        // Mostra o resultado para fins de depuração
+        echo "<pre>";
+        print_r(json_decode($resultado, true));
+        echo "</pre>";
+
+        echo $resultado; // Exibe o resultado JSON
     }
 
     // Método para validar o formato das datas
@@ -57,3 +63,4 @@ class DashboardController {
 
     
 }
+

@@ -3,7 +3,7 @@
 require_once(__DIR__ . '/../../../config/database.php');
 
 class SumarioVideoChamadaModel {
-    public static function getResumoVendasVideoChamada() {
+    public static function getResumoVendasVideoChamada($dataInicio, $dataFim) {
         $conn = conectarBanco(); //objeto de conexao nativo do pdo
 
         $queryVideoChamadaVendas="
@@ -20,16 +20,20 @@ class SumarioVideoChamadaModel {
         INNER JOIN TB_VEN_VENDA g ON g.VENID = f.VENID_VENDA
         INNER JOIN TB_LTV_LANCAMENTOVENDA h ON h.VENID = g.VENID
         INNER JOIN TB_LCT_LANCAMENTOS l ON l.LCTID = h.LCTID
-        WHERE l.LCTDATALANCAMENTO >= '2024-12-01'
-        AND l.LCTDATALANCAMENTO <= '2024-12-31'
+        WHERE l.LCTDATALANCAMENTO >= :dataInicio
+        AND l.LCTDATALANCAMENTO <= :dataFim
         AND d.MTVVALORMETA = 40000
         AND e.FILID_FILIAL = '5'
         AND e.MCVID IS NULL;
         ";
 
-        $stmt = $conn->prepare($queryVideoChamadaVendas); // -> comando para acessar metodos da classe conn do pdo, que executa comandos de banco de dados
-        $stmt->execute();   //stmt é um objeto do PDOStatement que representa uma consulta ja preparada, so falta executar
-
-        return $stmt->fetch(PDO::FETCH_ASSOC); //puxa o metodo fetch dentro do PDO, ele puxa o resutlado de um Statement (stmt)
-    }
+        $stmt = $conn->prepare($queryVideoChamadaVendas);  // -> comando para acessar metodos da classe conn do PDO, que executa comandos de banco de dados
+       // Preparando a consulta
+       $stmt->bindParam(':dataInicio', $dataInicio); 
+       $stmt->bindParam(':dataFim', $dataFim);
+       
+       // Executar a consulta e retornar o resultado
+       $stmt->execute();
+       return $stmt->fetch(PDO::FETCH_ASSOC);
+   }
 }
